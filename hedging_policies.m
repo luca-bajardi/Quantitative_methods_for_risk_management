@@ -3,7 +3,7 @@ function [impact] = hedging_policies(perc_cover, perc_forward, change, volume, v
 % La matrice ha le seguenti dimensioni nell'ordine: volume, perc_cover,
 % perc_forward, change
 % cost of the options is 5% of strike value
-
+format bank
 impact = zeros(length(volume),length(perc_cover),length(change),length(perc_forward));
 
 for i = 1:length(volume)
