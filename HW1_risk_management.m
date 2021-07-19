@@ -1,6 +1,6 @@
 %hedging_policies(perc_cover, perc_forward, change, volume)
 clc
-clear all
+%clear all
 close all
 perc_cover = [0,0.25,0.5,0.75,1];
 %perc_cover = [0:0.001:1];
@@ -15,10 +15,16 @@ volume_policy = 25000;
 
 samplesChange = samplingBetaFromData(true);
 
+
 format bank
 %impact = hedging_policies(perc_cover, perc_forward, change, volume, volume_policy, K);
 impact = hedging_policies(perc_cover, perc_forward, samplesChange, volume, volume_policy, K);
 
+%%
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, true);
+
+%%
+%%OTTIMIZZAZIONE ROBUSTA
 % trovo il minimo lungo la dimensione del volume (dim 1) e lungo quella del
 % change (dim 3) e poi sistemo la matrice per eliminare le dimensioni di 
 % lunghezza 1
