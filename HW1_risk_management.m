@@ -13,17 +13,15 @@ K = 1.22;
 %la politica è stabile su 25000 studenti
 volume_policy = 25000;
 
-samplesChange = samplingBetaFromData(true);
+samplesChange = samplingBetaFromData(false);
+samplesVolume = samplingBetaFromParameter(7,4.5,0,40000,false,volume);
 
 
 format bank
 %impact = hedging_policies(perc_cover, perc_forward, change, volume, volume_policy, K);
-impact = hedging_policies(perc_cover, perc_forward, samplesChange, volume, volume_policy, K);
+impact = hedging_policies(perc_cover, perc_forward, samplesChange, samplesVolume, volume_policy, K);
 
-%%
-[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, true);
-
-%%
+%
 %%OTTIMIZZAZIONE ROBUSTA
 % trovo il minimo lungo la dimensione del volume (dim 1) e lungo quella del
 % change (dim 3) e poi sistemo la matrice per eliminare le dimensioni di 
@@ -38,3 +36,12 @@ if print_table
 end
 
 maxOfMatrix(minMatrix, perc_cover, perc_forward)
+
+
+%
+disp('Parametric Beta')
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, 'Parametric Beta')
+disp('Parametric Normal')
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, 'Parametric Normal')
+disp('Historical Simulation')
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, 'Historical Simulation')
