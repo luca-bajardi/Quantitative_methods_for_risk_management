@@ -9,7 +9,7 @@ elseif nargin == 1
     seed = 'default';
 elseif nargin == 2
     seed = 'default';
-else
+elseif nargin>3
     error('Too many input arguments.');
 end
 historical_data_table = readtable(fileName,'PreserveVariableNames',true).Ultimo;
@@ -25,9 +25,13 @@ alpha = ((1 - muHD) / varHD - 1 / muHD) * muHD ^ 2;
 beta = alpha * (1 / muHD - 1);
 
 rng(seed) % For reproducibility
-samples = betarnd(alpha,beta,200)*(maxValue-minValue)+minValue;
+samples = betarnd(alpha,beta,[200,1])*(maxValue-minValue)+minValue;
 if plotHist
+    minPlot = min([minValue,samples']);
+    maxPlot = max([maxValue,samples']);
+    figure
     hold on
-    histogram(historical_data,10,'Normalization','probability')
-    histogram(samples,10,'Normalization','probability')
+    histogram(historical_data,10,'Normalization','probability','BinLimits',[minPlot,maxPlot])
+    histogram(samples,10,'Normalization','probability','BinLimits',[minPlot,maxPlot])
+    hold off
 end
