@@ -15,7 +15,6 @@ for i = 1:length(volume)
                 impact(i,j,k,:) = ones(length(perc_forward),1)*impact_no_cover;
             else
                 for w = 1:length(perc_forward)
-                    %volume_forward = volume_policy*perc_cover(j)*perc_forward(w); %%%%DA CONTROLLARE
                     volume_options = volume_policy*perc_cover(j)*(1-perc_forward(w));
 
                     cost_options = -volume_options*K*0.05;
