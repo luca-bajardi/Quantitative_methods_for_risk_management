@@ -1,6 +1,5 @@
-%hedging_policies(perc_cover, perc_forward, change, volume)
 clc
-%clear all
+clear all
 close all
 perc_cover = [0,0.25,0.5,0.75,1];
 %perc_cover = [0:0.001:1];
@@ -28,7 +27,7 @@ impact = hedging_policies(perc_cover, perc_forward, samplesChange, samplesVolume
 % lunghezza 1
 minMatrix = squeeze(min(min(impact,[],1),[],3));
 
-print_table = false;
+print_table = true;
 if print_table
     disp(array2table(minMatrix,...
                       'VariableNames',cellstr(num2str(perc_forward')),...
@@ -38,10 +37,11 @@ end
 maxOfMatrix(minMatrix, perc_cover, perc_forward)
 
 
-%
-disp('Parametric Beta')
-[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, 'Parametric Beta')
-disp('Parametric Normal')
-[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, 'Parametric Normal')
+probabilities = [0.9 0.95 0.99];
 disp('Historical Simulation')
-[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(0.99, impact, 'Historical Simulation')
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(probabilities, impact, 'Historical Simulation')
+squeeze(VaR(3,:,:))
+disp('Parametric Beta')
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(probabilities, impact, 'Parametric Beta')
+disp('Parametric Normal')
+[varianza, deviazione_standard, VaR, CVar]=RiskMeasures(probabilities, impact, 'Parametric Normal')
