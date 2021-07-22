@@ -33,5 +33,6 @@ if plotHist
     hold on
     histogram(historical_data,10,'Normalization','probability','BinLimits',[minPlot,maxPlot])
     histogram(samples,10,'Normalization','probability','BinLimits',[minPlot,maxPlot])
+    legend('Historical Data','Samples')
     hold off
 end
