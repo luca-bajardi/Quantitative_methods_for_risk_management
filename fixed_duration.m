@@ -8,7 +8,7 @@ prices=zeros(1, I);
 d_0=zeros(1, I);
 d_1=zeros(1, I);
 d_2=zeros(1, I);
-%d_3=zeros(1, I);
+d_3=zeros(1, I);
 tau_1 = tau(1);
 if length(tau)==2
     tau_2 = tau(2);
@@ -66,6 +66,8 @@ for i=0:(I-1)
     end
 end
 price=sum(N.*prices); %valore del bond
+
+% beta sentitivities
 D_0=sum(N.*d_0); %dollar duration
 D_1=sum(N.*d_1);
 D_2=sum(N.*d_2);
