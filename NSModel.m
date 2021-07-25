@@ -16,8 +16,9 @@ tau_1=3;
 tau_2=5;
 % r= @(beta_0,beta_1,beta_2,T) beta_0+beta_1*((1-exp(-T/tau_1))/(T/tau_1))...
 %     +beta_2*((1-exp(-T/tau_1))/(T/tau_1)-exp(-T/tau_1));
-r= @(betaValues,tau,T) betaValues(1)+betaValues(2)*((1-exp(-T/tau(1)))/(T/tau(1)))...
-    +betaValues(3)*((1-exp(-T/tau(1)))/(T/tau(1))-exp(-T/tau(1)));
+r= @(betaValues,tau,T) betaValues(1)...
+                      +betaValues(2)*((1-exp(-T/tau(1)))/(T/tau(1)))...
+                      +betaValues(3)*((1-exp(-T/tau(1)))/(T/tau(1))-exp(-T/tau(1)));
 %consideriamo 3 bond diversi ===> 3 fattori di rischio
 b1=[2*12, 100, 0.05,1];
 b2=[7*12, 100, 0.05, 1];
@@ -35,7 +36,11 @@ tau=[tau_1];
 
 figure
 maturities = 1:0.5:20;
-plot(maturities,r(betaValues,tau,maturities))
+tassi = zeros(1,length(maturities));
+for i = 1:length(maturities)
+    tassi(i) = r(betaValues,tau,maturities(i));
+end
+plot(maturities,tassi)
 
 
 %Svensson ===> 4 fattori di rischio
@@ -49,7 +54,11 @@ tau=[tau_1,tau_2];
 
 figure
 maturities = 1:0.5:20;
-plot(maturities,r2(betaValues,tau,maturities))
+tassi = zeros(1,length(maturities));
+for i = 1:length(maturities)
+    tassi(i) = r2(betaValues,tau,maturities(i));
+end
+plot(maturities,tassi)
 
 %
 %Vasicek=esempio 6.8
