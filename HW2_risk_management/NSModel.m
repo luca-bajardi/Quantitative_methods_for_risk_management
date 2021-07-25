@@ -52,7 +52,7 @@ betaValues=[beta_0 beta_1 beta_2 beta_3];
 tau=[tau_1,tau_2];
 [priceP, D0P, D1P, D2P, D3P]=fixed_duration(true, t_0, portfolio, r2, tau, betaValues)
 
-figure
+hold on
 maturities = 1:0.5:20;
 tassi = zeros(1,length(maturities));
 for i = 1:length(maturities)
@@ -62,7 +62,7 @@ plot(maturities,tassi)
 
 %
 %Vasicek=esempio 6.8
-clear all 
+%clear all 
 %close all
 %clc
 
@@ -70,10 +70,8 @@ L=0.06;
 S=0.025;
 G=-0.05;
 a=0.4;
-%syms L S G T
+
 rv=@(T) L-S*((1-exp(-0.4*T))/(0.4*T))+G*((1-exp(-0.4*T))^2/(4*0.4*T));
-%rv=subs(rv, {L, S, G, T}, {0.06, 0.025, -0.05, sym('T')});
-%rv=subs(rv, {L, S, G, T}, {sym('L'), sym('S'), sym('G'), 1});
 
 %beta_0=L;
 %beta_1=-S;
