@@ -1,4 +1,5 @@
-function w = meanvariance(numRepl,numSample, trueMu, trueSigma, lambda, options)
+function w = estimated_weights(numRepl,numSample, trueMu, trueSigma, lambda)
+
 rng('default'); % ripetibilità
 c=length(trueMu);
 w = zeros(numRepl, c);
@@ -6,15 +7,14 @@ w = zeros(numRepl, c);
 % matrice per i pesi di ciascun asset nel portafoglio ottimo stimato
     for k=1:numRepl
         retScenarios = mvnrnd(trueMu,trueSigma,numSample); %estrae vettori casuali dalla distribuzione normale
-        %hatMu = mean(retScenarios);
+        hatMu = mean(retScenarios);
         hatSigma = cov(retScenarios);
-        wp = quadprog(lambda*hatSigma,[],[],[],ones(1,2),1,[],[],[],options);
+        wp = QuadFolio(hatMu, hatSigma, lambda);
 
         for i=1:c
             w(k, i) = wp(i);
         end
     end
 end
-
 
 

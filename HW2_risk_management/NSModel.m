@@ -9,7 +9,7 @@ format bank
 t_0=0;
 
 %COSA CAMBIA AL VARIARE dei BETA??
-beta_0=0.08;
+beta_0=0.08; %valori di beta presi dall'esempio di Martellini
 beta_1=-0.03;
 beta_2=-0.01;
 tau_1=3;
@@ -21,16 +21,13 @@ r= @(betaValues,tau,T) betaValues(1)...
 betaValues=[beta_0 beta_1 beta_2 0];
 tau=[tau_1 1];
 
-bond=[1, 1, 5*12, 10000, 0.05, 2];
-zero=[1, 1, 0.5*12, 10000, 0, 2]; %capitalizzazione diversa da zero altrimenti errore, rimane uno zeroCouponBond perché coupon = 0% 
-[pricebond, D0bond, D1bond, D2bond]=fixed_duration(t_0, bond, r, tau, betaValues);
-[pricezero, D0zero, D1zero, D2zero]=fixed_duration(t_0, zero, r, tau, betaValues);
+bond=[1, 1, 5, 10000, 0.05, 2];
+zero=[1, 1, 0.5, 10000, 0, 2]; %capitalizzazione diversa da zero altrimenti errore, rimane uno zeroCouponBond perché coupon = 0% 
+[~, D0bond, ~, ~]=fixed_duration(t_0, bond, r, tau, betaValues);
+[~, D0zero, ~, ~]=fixed_duration(t_0, zero, r, tau, betaValues);
 phiNS = - D0bond/D0zero
 
 
-
-print_figure = true;
-if print_figure
 figure
 maturities = 1:0.5:20;
 tassi = zeros(1,length(maturities));
@@ -38,24 +35,21 @@ for i = 1:length(maturities)
     tassi(i) = r(betaValues,tau,maturities(i));
 end
 plot(maturities,tassi)
-end
 
 %Svensson ===> 4 fattori di rischio
 beta_3=0.02;
 tau_2=5;
 betaValues=[beta_0 beta_1 beta_2 beta_3];
 tau=[tau_1,tau_2];
-%dati temporanei
-betaValues = [0.08,-0.03,-0.01,0.02];
-tau = [5,8];
-bond=[1, 1, 5*12, 10000, 0.05, 2];
-zero=[1, 1, 0.5*12, 10000, 0, 2]; %capitalizzazione diversa da zero altrimenti errore, rimane uno zeroCouponBond perché coupon = 0% 
-[priceBond, D0bond, D1bond, D2bond]=fixed_duration(t_0, bond, r, tau, betaValues);
-[priceZero, D0zero, D1zero, D2zero]=fixed_duration(t_0, zero, r, tau, betaValues);
+
+%tau = [5,8];
+bond=[1, 1, 5, 10000, 0.05, 2];
+zero=[1, 1, 0.5, 10000, 0, 2]; %capitalizzazione diversa da zero altrimenti errore, rimane uno zeroCouponBond perché coupon = 0% 
+[~, D0bond, ~, ~]=fixed_duration(t_0, bond, r, tau, betaValues);
+[~, D0zero, ~, ~]=fixed_duration(t_0, zero, r, tau, betaValues);
 phi = - D0bond/D0zero
 %[priceP, D0P, D1P, D2P, D3P]=fixed_duration(t_0, portfolio, r, tau, betaValues)
 
-if print_figure
 figure
 maturities = 1:0.5:20;
 tassi = zeros(1,length(maturities));
@@ -63,7 +57,6 @@ for i = 1:length(maturities)
     tassi(i) = r(betaValues,tau,maturities(i));
 end
 plot(maturities,tassi)
-end
 
 % priceZeroOriginal = priceZero;
 % priceBondOriginal = priceBond;
@@ -72,25 +65,25 @@ end
 % priceBond + phi*(priceZero-priceZeroOriginal);
 % priceBondOriginal;
 
-betaVariation = [0.08 0 0 0];
-
 hedge = zero;
-[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi)
+%variazione di beta_0
+betaVariation = [0.08 0 0 0];
+[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi);
 percProfit = (newValuePosition-priceBondOriginal)/priceBondOriginal*100
 percProfitNoHedge = (priceBondNew-priceBondOriginal)/priceBondOriginal*100
-
+%variazione di beta_1
 betaVariation = [0 -0.03 0 0];
-[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi)
+[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi);
 percProfit = (newValuePosition-priceBondOriginal)/priceBondOriginal*100
 percProfitNoHedge = (priceBondNew-priceBondOriginal)/priceBondOriginal*100
-
+%variazione di beta_2
 betaVariation = [0 0 0.04 0];
-[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi)
+[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi);
 percProfit = (newValuePosition-priceBondOriginal)/priceBondOriginal*100
 percProfitNoHedge = (priceBondNew-priceBondOriginal)/priceBondOriginal*100
-
+%variazione di beta_3
 betaVariation = [0 0 0 0.09];
-[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi)
+[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi);
 percProfit = (newValuePosition-priceBondOriginal)/priceBondOriginal*100
 percProfitNoHedge = (priceBondNew-priceBondOriginal)/priceBondOriginal*100
 
@@ -119,12 +112,20 @@ for j = 1:size(betaVariation,1)
     plot(maturities,tassi)
 end
 
+T=table('RowNames',{'VaR','VarNoHedge','CVaR','CVarNoHedge'});
+probabilities = [0.90 0.95 0.99];
 %proviamo con vari valori di deviazione standard
-for diff = [1,2,4]
+scale = [1,2,4];
+tab = zeros(4,length(probabilities));
+VaR = zeros(1,length(probabilities));
+VaRNoHedge = zeros(1,length(probabilities));
+CVaR = zeros(1,length(probabilities));
+CVaRNoHedge = zeros(1,length(probabilities));
+for diff = 1:length(scale)
     seed = 'default';
     num_scenari = 10000;%10000
     mu = zeros(1,4);
-    sigma = 0.001*diff;
+    sigma = 0.001*scale(diff);
     Sigma = eye(4)*(sigma^2);
     rng(seed) % For reproducibility
     betaVariation = mvnrnd(mu,Sigma,num_scenari);
@@ -142,9 +143,23 @@ for diff = [1,2,4]
     histogram(percProfit,'Normalization','probability')
     legend('percProfitNoHedge','percProfitWithHedge')
     hold off
+    for prob=1:length(probabilities)
+        id=floor(num_scenari*(1-probabilities(prob)));
+        percProfit_sort = sort(percProfit);
+        VaR(prob) = percProfit_sort(id);
+        CVaR(prob) = mean(percProfit_sort(1:id));
+        percProfitNoHedge_sort = sort(percProfitNoHedge);
+        VaRNoHedge(prob) = percProfitNoHedge_sort(id);
+        CVaRNoHedge(prob) = mean(percProfitNoHedge_sort(1:id));
+    end
+    tab(1,:) = VaR;
+    tab(2,:) = VaRNoHedge;
+    tab(3,:) = CVaR;
+    tab(4,:) = CVaRNoHedge;
+    
+    T = addvars(T,tab,'NewVariableNames',num2str(sigma));
 end
-
-%%%%%   SWAP
+disp(T)
 
 %%%%% PORTAFOGLIO CON PIù ELEMENTI
 
@@ -160,7 +175,7 @@ end
 %[price2, D02, D12, D22]=fixed_duration(t_0, B2, r, 3);
 %[price3, D03, D13, D23]=fixed_duration(t_0, B3, r, 3);
 
-bond=[1, 1, 5*12, 10000, 0.05, 2];
+bond=[1, 1, 5, 10000, 0.05, 2];
 [priceP, D0P, D1P, D2P, D3P]=fixed_duration(t_0, bond, r, tau, betaValues);
 
 % bond=[5*12, 10000, 0.05, 2];
@@ -202,10 +217,10 @@ asset_sentitivities = zeros(4);
 % asset_sentitivities(:,4) = [D_0, D_1, D_2, D_3];
 % phi = asset_sentitivities\(-portfolio_sensitivities)
 
-A1=[1, 1, 0.5*12, 10000, 0, 2];
-A2=[1, 1, 1.0*12, 10000, 0, 2];
-A3=[1, 1, 1.5*12, 10000, 0, 2];
-A4=[1, 1, 2.0*12, 10000, 0, 2];
+A1=[1, 1, 0.5, 10000, 0, 2];
+A2=[1, 1, 1.0, 10000, 0, 2];
+A3=[1, 1, 1.5, 10000, 0, 2];
+A4=[1, 1, 2.0, 10000, 0, 2];
 [~, D_0, D_1, D_2, D_3]=fixed_duration(0, A1, r, tau, betaValues);
 asset_sentitivities(:,1) = [D_0, D_1, D_2, D_3];
 [~, D_0, D_1, D_2, D_3]=fixed_duration(0, A2, r, tau, betaValues);
@@ -217,6 +232,7 @@ asset_sentitivities(:,4) = [D_0, D_1, D_2, D_3];
 
 phi = asset_sentitivities\(-portfolio_sensitivities)
 
+
 %swap
 
 fixed = true;
@@ -224,4 +240,42 @@ T = 5;
 faceValue = 10000;
 NPayments = 2;
 last_rate = 0.05;
-[p_swap,Dd_swap] = swap_duration(fixed, t_0, T, faceValue, NPayments, r, tau, betaValues, last_rate)
+swap=[1, 1, T, faceValue, NaN, NPayments];
+[p_swap,Dd_swap] = swap_duration(t_0, swap, r, tau, betaValues, fixed, last_rate)
+% swap_duration(fixed, t_0, T, faceValue, NPayments, r, tau, betaValues, last_rate)
+
+bond=[1, 1, 5, 10000, 0.05, 2];
+[priceBond, D0bond, D1bond, D2bond]=fixed_duration(t_0, bond, r, tau, betaValues);
+phi = - D0bond/Dd_swap
+
+betaVariation = [0.02 0 0 0];
+
+hedge = swap;
+[newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation,phi,'swap',fixed,last_rate);
+percProfit = (newValuePosition-priceBondOriginal)/priceBondOriginal*100
+percProfitNoHedge = (priceBondNew-priceBondOriginal)/priceBondOriginal*100
+
+for diff = 1:length(scale)
+    seed = 'default';
+    num_scenari = 10000;%10000
+    mu = zeros(1,4);
+    sigma = 0.001*scale(diff);
+    Sigma = eye(4)*(sigma^2);
+    rng(seed) % For reproducibility
+    betaVariation = mvnrnd(mu,Sigma,num_scenari);
+    
+    percProfit = zeros(num_scenari,1);
+    percProfitNoHedge = zeros(num_scenari,1);
+    for s = 1:num_scenari
+        [newValuePosition,priceBondOriginal,priceBondNew] = portfolioShock(t_0,bond,hedge,r,tau,betaValues,betaVariation(s,:),phi,'swap',fixed,last_rate);
+        percProfit(s) = (newValuePosition-priceBondOriginal)/priceBondOriginal*100;
+        percProfitNoHedge(s) = (priceBondNew-priceBondOriginal)/priceBondOriginal*100;
+    end
+    figure
+    histogram(percProfitNoHedge,'Normalization','probability')
+    hold on
+    histogram(percProfit,'Normalization','probability')
+    legend('percProfitNoHedge','percProfitWithHedge')
+    hold off
+
+end
