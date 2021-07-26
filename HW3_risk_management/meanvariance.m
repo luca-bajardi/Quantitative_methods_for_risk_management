@@ -8,7 +8,7 @@ w = zeros(numRepl, c);
         retScenarios = mvnrnd(trueMu,trueSigma,numSample); %estrae vettori casuali dalla distribuzione normale
         %hatMu = mean(retScenarios);
         hatSigma = cov(retScenarios);
-        wp = quadprog(lambda*hatSigma,[],[],[],ones(1,2),1,[],[],[],options);
+        wp = quadprog(lambda*hatSigma,[],[],[],ones(1,length(trueMu)),1,[],[],[],options);
 
         for i=1:c
             w(k, i) = wp(i);
