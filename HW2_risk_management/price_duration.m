@@ -1,4 +1,4 @@
-function [price, D, dollar_duration] = price_duration(t_0, portfolio, r, tau, betaValues, last_rate)
+function [price, D, dollar_duration, last_rate, k] = price_duration(t_0, portfolio, r, tau, betaValues, type, last_rate)
 %Argomenti in input:
 %t_0=istante di tempo in cui voglio calcolare il valore del portafoglio
 %portfolio=[NDifferentBond, NBond, T, faceValue, annualCoupon, NPayments], portafoglio da immunizzare
@@ -11,11 +11,11 @@ function [price, D, dollar_duration] = price_duration(t_0, portfolio, r, tau, be
 %D=duration
 %dollar_duration
 
-
 I=floor(portfolio(1));
 N=portfolio(2:(2+I-1));
 prices=zeros(1, I);
 durations=zeros(1, I);
+
 
 for i=0:(I-1)
     T=portfolio(I+2+4*i);
@@ -23,7 +23,7 @@ for i=0:(I-1)
     annualCoupon=portfolio(I+4+4*i);
     NPayments=portfolio(I+5+4*i);
     
-    if ~exist('last_rate','var') %il portafoglio è costituito da bond
+    if strcmp(type,'fixed')%~exist('last_rate','var') %il portafoglio è costituito da bond
         if mod(T, 1/NPayments)==0
             n=NPayments*T-1; %numero di pagamenti escluso quello della maturità
             time=linspace(t_0, T, n+2);
@@ -44,18 +44,27 @@ for i=0:(I-1)
         if ~isnan(annualCoupon)
             c=annualCoupon/NPayments*faceValue;
         else    %calcoliamo lo swap rate
-            c=NPayments*(1-exp(-T*termStructure(length(termStructure))))/sum(exp(-t(1:length(termStructure))));
+            k=NPayments*(1-exp(-T*termStructure(length(termStructure))))/sum(exp(-t(1:length(termStructure))));
+            c=k*faceValue/NPayments;
         end
+
         prices(1, i+1)=c*sum(exp(-(t(1:n)-t_0)))+(c+faceValue)*exp(-(t(n+1)-t_0));
         durations(1, i+1)=1/prices(1, i+1)*(sum(c*(time(1:n)-t_0).*exp(-(t(1:n)-t_0)))+(c+faceValue)*(time(n+1)-t_0)*exp(-(t(n+1)-t_0)));
         
     else          %il portafoglio è costituito da floater
         if mod(T,1/NPayments)==0
             next_reset=1/NPayments;
+            
         else
             next_reset=mod(T,1/NPayments);
         end
-        c=faceValue*last_rate/NPayments;
+        
+        % calcolo originale, se ci fosse annualCoupon vuol dire che
+        % siamo durante un calcolo sugli shock dei beta
+        if isnan(annualCoupon)
+            last_rate = r(betaValues,tau,next_reset);
+        end
+        c=faceValue*(exp(last_rate/NPayments)-1);
         prices(1, i+1)=(c+faceValue)*exp(-(next_reset-t_0)*r(betaValues,tau,next_reset));
         durations(1, i+1)=(next_reset-t_0);
     end
@@ -65,5 +74,11 @@ for i=0:(I-1)
     dollar_duration=D*price;
     
     
+end
+if ~exist('last_rate','var')
+    last_rate = NaN;
+end
+if ~exist('k','var')
+    k = NaN;
 end
 end
