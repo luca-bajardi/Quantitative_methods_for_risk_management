@@ -8,13 +8,13 @@ clc
 
 
 
-% Symbol	Company Name
+%Symbol	Company Name
 % AAPL	Apple, Inc.
 % SBUX	Starbucks, Inc.
 % MSFT	Microsoft, Inc.
 % CSCO	Cisco Systems, Inc.
 % QCOM	QUALCOMM Incorporated
-% Facebook, Inc.	Facebook, Inc.
+% FB	Facebook, Inc.
 % AMZN	Amazon.com, Inc.
 % TSLA	Tesla, Inc.
 % AMD	Advanced Micro Devices, Inc.
@@ -74,12 +74,18 @@ lambda = 3;
 [truewp,mup,sigmap] = QuadFolio(trueMu, trueSigma, lambda);
 truew1 = truewp(1);
 
+figure
+stockCat = categorical(list_stock);
+stockCat = reordercats(stockCat,list_stock);
+bar(stockCat,truewp)
+title('Weights with Lambda = 3')
+Weights = zeros(num_asset,3);
+Weights(:,2) = truewp;
 %in alternativa posso usare la funzione già implementata in matlab che però
 %non sfrutta la soluzione in forma chiusa
 
 options = optimoptions('quadprog','Display','none');
 x = quadprog(lambda*trueSigma,-trueMu,[],[],ones(1,num_asset),1,[],[],[],options);
-
 %check stesso risultato
 max(abs(truewp-x))<1.0e-4
 
@@ -91,7 +97,11 @@ max(abs(truewp-x))<1.0e-4
 % err_abs_S=max(abs(trueSigma-sigmap));
 % err_rel_S=max(abs(trueSigma-sigmap))/trueSigma;
 
-w=estimated_portfolio(1000, 300, trueMu, trueSigma, lambda);
+
+%facendo varie replicazioni vediamo che a seconda dei valori di mu e sigma
+%campionati si ottengono valori di w diversi (usando 250 campioni ad
+%indicare un'analisi relativa all'anno precedente
+w=estimated_weights(1000, 250, trueMu, trueSigma, lambda);
 figure
 histogram(w(:,1),50); %peso del primo asset nel portafoglio
 xline(truew1,'r','LineWidth',3); %valore ottimo vero
@@ -110,36 +120,42 @@ title('Peso del primo asset nel portafoglio');
 %vediamo come migliora la soluzione quando aumentiamo il numero di
 %campioni a disposizione
 figure 
-w1=estimated_portfolio(1000, 3000, trueMu, trueSigma, lambda);
+w1=estimated_weights(1000, 2500, trueMu, trueSigma, lambda);
 histogram(w1(:, 1),50);
 xline(truew1,'r','LineWidth',3);
 title('Aumento la dimensione dei dati su cui fitto la distribuzione')
 %la variabilità si riduce di molto
 %nella realtà non avremo mai a disposizione tutti questi dati
+%quindi continuo ad usare un numero più basso
 
 %%
 %EFFETTO DELL'AVVERSIONE AL RISCHIO
  lambda2=2;
 [truewp,mup,sigmap] = QuadFolio(trueMu, trueSigma, lambda2);
-truew_lambda = truewp(1);
-w_lambda=estimated_portfolio(1000, 300, trueMu, trueSigma, lambda2);
-figure
-histogram(w_lambda(:,1),50); %peso del primo asset nel portafoglio
-xline(truew_lambda,'r','LineWidth',3); %valore ottimo vero
-title('Effetto del coef. di avversione al rischio');
+Weights(:,1) = truewp;
+% truew_lambda = truewp(1);
+% w_lambda=estimated_portfolio(1000, 300, trueMu, trueSigma, lambda2);
+% figure
+% histogram(w_lambda(:,1),50); %peso del primo asset nel portafoglio
+% xline(truew_lambda,'r','LineWidth',3); %valore ottimo vero
+% title('Effetto del coef. di avversione al rischio');
 
 lambda3=4;
 [truewp,mup,sigmap] = QuadFolio(trueMu, trueSigma, lambda3);
-truew_lambda = truewp(1);
-w_lambda=estimated_portfolio(1000, 300, trueMu, trueSigma, lambda3);
-figure
-histogram(w_lambda(:,1),50); %peso del primo asset nel portafoglio
-xline(truew_lambda,'r','LineWidth',3); %valore ottimo vero
-title('Effetto del coef. di avversione al rischio2');
+% truew_lambda = truewp(1);
+Weights(:,3) = truewp;
+% w_lambda=estimated_portfolio(1000, 300, trueMu, trueSigma, lambda3);
+% figure
+% histogram(w_lambda(:,1),50); %peso del primo asset nel portafoglio
+% xline(truew_lambda,'r','LineWidth',3); %valore ottimo vero
+% title('Effetto del coef. di avversione al rischio2');
 
 %Valori accettabili del coefficiente di avversione al rischio sono quelli
 %dell'intervallo [2, 4]. Sembra che all'aumentare di lambda la variabilità
-%viene ridotta. PERCHE?????
+%viene ridotta perché siamo più avversi al rischio e quindi vogliamo meno
+%variabilità
+figure
+bar(stockCat,Weights)
 
 %%
 %EFFETTO DEI VINCOLI SULLO SCOPERTO
@@ -149,12 +165,14 @@ title('Effetto del coef. di avversione al rischio2');
 %scoperto)
 options = optimoptions('quadprog','Display','none');
 x_no_scoperto = quadprog(lambda*trueSigma,-trueMu,-eye(length(trueMu)),zeros(length(trueMu),1),ones(1,length(trueMu)),1,[],[],[],options);
-wns=estimated_portfolio(1000, 3000, trueMu, trueSigma, lambda);
+% wns=estimated_portfolio(1000, 3000, trueMu, trueSigma, lambda);
+% figure
+% histogram(wns(:, 1),50);
+% xline(x_no_scoperto(1),'r','LineWidth',3);
+% title('No vendita allo scoperto');
 figure
-histogram(wns(:, 1),50);
-xline(x_no_scoperto(1),'r','LineWidth',3);
-title('No vendita allo scoperto');
-
+bar(stockCat,x_no_scoperto)
+title('Weights with w>=0')
 
 %%
 %PORTAFOGLIO DI MINIMA VARIANZA
@@ -164,14 +182,16 @@ title('No vendita allo scoperto');
 %potrebbe essere utile capire cosa accade.
 options = optimoptions('quadprog','Display','none');
 xmv= quadprog(lambda*trueSigma,[],[],[],ones(1,num_asset),1,[],[],[],options);
-truew_lambda = xmv(1);
-%non so se serve farlo??
-w_mv=meanvariance(1000, 300, trueMu, trueSigma, lambda, options);
+% truew_lambda = xmv(2);
+% %non so se serve farlo??
+% w_mv=minvariance(1000, 300, trueMu, trueSigma, lambda, options);
+% figure
+% histogram(w_mv(:,2),50); %peso del secondo asset nel portafoglio
+% xline(truew_lambda,'r','LineWidth',3); %valore ottimo vero
+% title('Portafoglio di minima varianza');
 figure
-histogram(w_mv(:,1),50); %peso del primo asset nel portafoglio
-xline(truew_lambda,'r','LineWidth',3); %valore ottimo vero
-title('Portafoglio di minima varianza');
-
+bar(stockCat,xmv)
+title('Pesi di un portafoglio di minima varianza')
 
 %BISOGNA confrontare il rendimento del portafoglio ottimo con quello di
 %minima varianza su un orizzonte di tempo
@@ -180,6 +200,21 @@ title('Portafoglio di minima varianza');
 %PORTAFOGLIO NAIVE
 %Stesso orizzonte di tempo di prima, confrontare il rendimento
 w_naive=1/length(trueMu)*ones(length(trueMu), 1);
+% figure
+% bar(stockCat,w_naive)
+% title('Pesi di un portafoglio naive')
+%[x0,y0,width,height] = [0,0,0.2,0.2];
+% fig=gcf;
+% fig.Position(2)=0;
+% fig.Position(4)=0.2;
+
+%% stima rendimenti
+num_days = 250;
+
+types = ["optimal","optimalNoShort","estimated","estimatedNoShort","minvariance","naive"];
+for type = 1:length(types)
+    estimated_portfolio(trueMu, trueSigma, lambda, num_days, types(type));
+end
 
 %%
 %Hanno più impatto errori sui premi per il rischio o sulle
