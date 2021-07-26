@@ -2,13 +2,14 @@ function [price, D_0, D_1, D_2, D_3] = fixed_duration(t_0, portfolio, r, tau, be
 %DETTAGLI PORTAFOGLIO
 %quanti bond nel portafoglio
 %quanti bond di quel tipo
-%maturità in mesi
+%maturità in anni
 %face value
 %cedola annuale
 %numero capitalizzazioni in un anno
 
 % r è la formula della struttura per scadenza
-% tau_1 non sappiamo come si trova
+% tau_1 parametro
+%betaValues sono collegati alla struttura per scadenza
 
 I=floor(portfolio(1));
 N=portfolio(2:(2+I-1));
@@ -19,7 +20,7 @@ d_2=zeros(1, I);
 d_3=zeros(1, I);
 tau_1 = tau(1);
 
-if length(tau)~=1 && betaValues(4)~=0
+if length(tau)~=1 && betaValues(4)~=0 %usiamo la correzione di Svensson 
     tau_2 = tau(2);
 end
 
@@ -29,16 +30,19 @@ for i=0:(I-1)
     annualCoupon=portfolio(I+4+4*i);
     NPayments=portfolio(I+5+4*i);
     
-    
+    if NPayments==0
+        c=0;
+    else
     c=annualCoupon/NPayments*faceValue;
-    if mod(T, 12/NPayments)==0
-        n=NPayments*T/12-1; %numero di pagamenti escluso quello della maturità
-        time=linspace(t_0, T/12, n+2);
+    end
+    if mod(T, 1/NPayments)==0
+        n=NPayments*T-1; %numero di pagamenti escluso quello della maturità
+        time=linspace(t_0, T, n+2);
         time(1)=[];
     else
-        t_1=mod(T, 12/NPayments);
-        n=floor(NPayments*T/12);
-        time=linspace(t_1/12, T/12, n+1);
+        t_1=mod(T, 1/NPayments);
+        n=floor(NPayments*T);
+        time=linspace(t_1, T, n+1);
     end
     termStructure=zeros(1, length(time));
     for j=1:length(time)

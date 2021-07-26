@@ -44,7 +44,7 @@ for i=0:(I-1)
         if ~isnan(annualCoupon)
             c=annualCoupon/NPayments*faceValue;
         else    %calcoliamo lo swap rate
-            c=NPayments*(1-exp(-T*termStructure(T+2)))/sum(exp(-t(1:T+2)));
+            c=NPayments*(1-exp(-T*termStructure(length(termStructure))))/sum(exp(-t(1:length(termStructure))));
         end
         prices(1, i+1)=c*sum(exp(-(t(1:n)-t_0)))+(c+faceValue)*exp(-(t(n+1)-t_0));
         durations(1, i+1)=1/prices(1, i+1)*(sum(c*(time(1:n)-t_0).*exp(-(t(1:n)-t_0)))+(c+faceValue)*(time(n+1)-t_0)*exp(-(t(n+1)-t_0)));
