@@ -11,9 +11,7 @@ w = zeros(numRepl, c);
         hatSigma = cov(retScenarios);
         wp = QuadFolio(hatMu, hatSigma, lambda);
 
-        for i=1:c
-            w(k, i) = wp(i);
-        end
+        w(k, :) = wp(:);
     end
 end
 
