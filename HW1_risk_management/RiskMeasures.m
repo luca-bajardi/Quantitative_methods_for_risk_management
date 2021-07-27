@@ -29,10 +29,10 @@ for i = 1:num_perc_cover
             sigma(i,j)=sqrt(sigma_squared(i,j));
             for prob=1:length(probabilities)
                 VaR(prob,i,j)=norminv(1-probabilities(prob),muC,sigma(i,j));
-                CVaR(prob,i,j)= muC+sigma(i,j)/(1-probabilities(prob))*normcdf(VaR(prob,i,j),muC,sigma(i,j)); %non l'ho capito
+                CVaR(prob,i,j)= muC-sigma(i,j)/(1-probabilities(prob))*normpdf(norminv(1-probabilities(prob)));
             end
         end
-        
+
         %============================
         %    Historical Simulation
         %============================
