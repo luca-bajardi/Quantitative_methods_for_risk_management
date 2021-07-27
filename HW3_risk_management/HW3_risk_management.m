@@ -255,22 +255,34 @@ end
 numRepl = 1000;
 plotWealth = false;
 rng(2020);
-wealth = estimated_portfolio(numRepl, trueMu, trueSigma, lambda, num_days, 'estimated', plotWealth, numPastDays, num_days_update);
-figure
-hist_values = wealth(:,end)<50000;
-histogram(wealth(hist_values,end),30)
+[wealth,w] = estimated_portfolio(numRepl, trueMu, trueSigma, lambda, num_days, 'optimal', plotWealth, numPastDays);
+
 
 %applichiamo piccola variazione sulla stima (errore di stima) e aumenta
-%variabilità
+%variabilità sia in positivo che in negativo
 muVariation = zeros(length(trueMu),1);
-muVariation(5) =  0.0001;
-muVariation(10) = -0.0001;
+muVariation(5) =  0.001;
+muVariation(10) = -0.001;
+rng(2020);
+[wealthVar,wVar] = estimated_portfolio(numRepl, trueMu+muVariation, trueSigma, lambda, num_days, 'estimated', plotWealth, numPastDays);
 
-wealth = estimated_portfolio(numRepl, trueMu+muVariation, trueSigma, lambda, num_days, 'estimated', plotWealth, numPastDays, num_days_update);
+%il valore medio più basso senza variazione ma anche meno variabilità,
+%intesa sia come perdita che guadagno
+meanOptimal = mean(wealth(:,end))
+meanVariation = mean(wealthVar(:,end))
+stdOptimal = std((wealth(:,end)))
+stdVariation = std((wealthVar(:,end)))
 
 figure
-hist_values = wealth(:,end)<50000;
-histogram(wealth(hist_values,end),30)
+histogram(wealth(:,end),35,'BinLimits',[0,35000])
+hold on
+histogram(wealthVar(:,end),35,'BinLimits',[0,35000])
+xline(1000,'r','LineWidth',2);
+legend('orginal','variation')
+
+figure
+bar([w(1,:)' wVar(1,:)'])
+legend('orginal','variation')
 
 %%
 %Effetto di asimmetrie o code grasse (volendo potete cambiare distribuzione di probabilità e
