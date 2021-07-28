@@ -1,5 +1,4 @@
 function [p_swap,Dd_swap,k,last_rateUsed] = swap_duration(t_0, portfolio, r, tau, betaValues, fixed, last_rate)
-%swap_duration(fixed, t_0, T, faceValue, NPayments, r, tau, betaValues, last_rate)
 
 %Argomenti in input: 
 %fixed=variabile booleana per stabilire il punto di vista fixed/floater
@@ -8,7 +7,6 @@ function [p_swap,Dd_swap,k,last_rateUsed] = swap_duration(t_0, portfolio, r, tau
 %termStructure=quella che conosco oggi
 %last_rate= per calcolare il prossimo pagamento del floater
 
-%portfolio=[1, 1, T, faceValue, NaN, NPayments];
 [p_fixed, ~, Dd_fixed,~,k]=price_duration(t_0, portfolio, r, tau, betaValues, 'fixed');
 [p_float, ~, Dd_float,last_rateUsed,~]=price_duration(t_0, portfolio, r, tau, betaValues, 'floater',last_rate);
 

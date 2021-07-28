@@ -8,8 +8,7 @@ function [price, D_0, D_1, D_2, D_3] = fixed_duration(t_0, portfolio, r, tau, be
 %numero capitalizzazioni in un anno
 
 % r è la formula della struttura per scadenza
-% tau_1 parametro
-%betaValues sono collegati alla struttura per scadenza
+% tau e betaValues sono collegati alla struttura per scadenza
 
 I=floor(portfolio(1));
 N=portfolio(2:(2+I-1));
