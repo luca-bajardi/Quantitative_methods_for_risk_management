@@ -1,6 +1,6 @@
 function samples = samplingBetaFromParameter(alpha,beta,minValue,maxValue,...
                         plotDensity,importantValues,seed)
-format long
+
 if nargin<4
     error('Not enough input arguments.');
 elseif nargin == 4

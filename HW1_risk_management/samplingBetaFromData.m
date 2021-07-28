@@ -1,5 +1,5 @@
 function samples = samplingBetaFromData(plotHist,fileName,seed)
-format long
+
 if nargin == 0
     plotHist = false;
     fileName = 'EUR_USD Dati Storici.csv';
